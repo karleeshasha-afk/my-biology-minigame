@@ -803,40 +803,76 @@
         function drawPlayer() {
             const rData = ROUNDS_DATA[currentRoundIdx];
 
-            // Outer Glow & Shadow
             ctx.save();
-            ctx.shadowColor = 'rgba(148, 163, 184, 0.3)';
-            ctx.shadowBlur = 14;
+            ctx.shadowColor = 'rgba(148, 163, 184, 0.35)';
+            ctx.shadowBlur = 12;
             ctx.shadowOffsetY = 6;
-            
-            // Avatar Container (Soft Rounded Pastel Box)
-            ctx.fillStyle = rData.avatarColor;
-            const radius = 22;
+
+            const bx = player.x;
+            const by = player.y;
+            const bw = player.width;
+            const bh = player.height;
+
+            // 1. Draw Basket Handle (Arc at the top)
             ctx.beginPath();
-            ctx.moveTo(player.x + radius, player.y);
-            ctx.lineTo(player.x + player.width - radius, player.y);
-            ctx.quadraticCurveTo(player.x + player.width, player.y, player.x + player.width, player.y + radius);
-            ctx.lineTo(player.x + player.width, player.y + player.height - radius);
-            ctx.quadraticCurveTo(player.x + player.width, player.y + player.height, player.x + player.width - radius, player.y + player.height);
-            ctx.lineTo(player.x + radius, player.y + player.height);
-            ctx.quadraticCurveTo(player.x, player.y + player.height, player.x, player.y + player.height - radius);
-            ctx.lineTo(player.x, player.y + radius);
-            ctx.quadraticCurveTo(player.x, player.y, player.x + radius, player.y);
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = '#D4A373'; // Pastel wooden brown
+            ctx.arc(bx + bw / 2, by + bh * 0.4, bw * 0.35, Math.PI, 0, false);
+            ctx.stroke();
+
+            // 2. Basket Body (Trapezoid shape)
+            ctx.fillStyle = '#E9EDC9'; // Warm pastel basket weave background
+            ctx.beginPath();
+            ctx.moveTo(bx, by + bh * 0.35);
+            ctx.lineTo(bx + bw, by + bh * 0.35);
+            ctx.lineTo(bx + bw * 0.88, by + bh);
+            ctx.lineTo(bx + bw * 0.12, by + bh);
             ctx.closePath();
             ctx.fill();
-            ctx.restore();
 
-            // Inner Badge Icon Text
+            // Basket Rim (Top Edge)
+            ctx.fillStyle = '#CCD5AE';
+            ctx.beginPath();
+            ctx.roundRect(bx - 3, by + bh * 0.3, bw + 6, bh * 0.14, 6);
+            ctx.fill();
+
+            // 3. Basket Weave Lines Effect
+            ctx.strokeStyle = 'rgba(166, 138, 100, 0.25)';
+            ctx.lineWidth = 2;
+            // Vertical weave lines
+            for (let i = 1; i <= 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(bx + (bw / 4) * i, by + bh * 0.44);
+                ctx.lineTo(bx + (bw / 4) * i, by + bh * 0.92);
+                ctx.stroke();
+            }
+            // Horizontal weave line
+            ctx.beginPath();
+            ctx.moveTo(bx + bw * 0.05, by + bh * 0.68);
+            ctx.lineTo(bx + bw * 0.95, by + bh * 0.68);
+            ctx.stroke();
+
+            // 4. Biology Career Badge on the front of the Basket
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+            ctx.shadowBlur = 4;
+            ctx.fillStyle = rData.avatarColor;
+            ctx.beginPath();
+            ctx.arc(bx + bw / 2, by + bh * 0.65, 15, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Career Badge Icon
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = '900 30px "Font Awesome 6 Free"';
+            ctx.font = '900 14px "Font Awesome 6 Free"';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(getIconUnicode(rData.avatarIcon), player.x + player.width / 2, player.y + player.height / 2 - 8);
+            ctx.fillText(getIconUnicode(rData.avatarIcon), bx + bw / 2, by + bh * 0.65);
 
-            // Career Label Banner
-            ctx.fillStyle = '#334155';
-            ctx.font = 'bold 11px "Fredoka", sans-serif';
-            ctx.fillText(rData.career, player.x + player.width / 2, player.y + player.height - 12);
+            // Career Name Label on Basket Rim
+            ctx.fillStyle = '#4A5568';
+            ctx.font = '900 10px "Fredoka", sans-serif';
+            ctx.fillText(rData.career, bx + bw / 2, by + bh * 0.37);
+
+            ctx.restore();
         }
 
         function drawItem(item, renderX) {
