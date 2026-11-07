@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio Career Catcher - Form 4 KSSM Biology</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Tone.js for Synthesized Sound & Background Audio -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pastelGreen: '#C1E1C1',
+                        pastelDarkGreen: '#77DD77',
+                        pastelBlue: '#AEC6CF',
+                        pastelYellow: '#FDFD96',
+                        pastelPink: '#FFB7B2',
+                        pastelPurple: '#C3B1E1',
+                        pastelBg: '#F4F7F6',
+                        pastelCard: '#FFFFFF',
+                        pastelText: '#4A5568'
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        quicksand: ['Quicksand', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #E8F0FE 0%, #F3E8FF 50%, #E6F4EA 100%);
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        h1, h2, h3, button, .font-title {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .pastel-shadow {
+            box-shadow: 0 15px 35px -5px rgba(160, 174, 192, 0.35), 0 10px 15px -6px rgba(160, 174, 192, 0.2);
+        }
+
+        .btn-pastel {
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 5px 0px rgba(0, 0, 0, 0.08);
+        }
+        .btn-pastel:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 0px rgba(0, 0, 0, 0.08);
+        }
+        .btn-pastel:active {
+            transform: translateY(2px) scale(0.98);
+            box-shadow: 0 2px 0px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Pulsing & Floating Animations */
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        .animate-heart {
+            animation: pulse-slow 1.2s infinite ease-in-out;
+        }
+
+        @keyframes float-gentle {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(2deg); }
+        }
+        .animate-float {
+            animation: float-gentle 3s ease-in-out infinite;
+        }
+
+        /* Glassmorphism overlays */
+        .glass-overlay {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+        }
+
+        canvas {
+            background: linear-gradient(180deg, #E6F3FF 0%, #F0F9FF 60%, #E2F0D9 100%);
+            border-radius: 1.5rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 sm:p-4 text-pastelText">
+
+    <!-- MAIN GAME CONTAINER -->
+    <div class="relative w-full max-w-4xl bg-white/90 backdrop-blur-sm rounded-3xl p-4 sm:p-6 pastel-shadow border-4 border-white overflow-hidden flex flex-col items-center">
+        
+        <!-- HEADER / SCOREBOARD -->
+        <header class="w-full flex flex-wrap justify-between items-center gap-2 mb-3 px-2">
+            <!-- Title -->
+            <div class="flex items-center gap-2">
+                <div class="w-11 h-11 rounded-2xl bg-pastelGreen flex items-center justify-center text-emerald-700 text-2xl font-bold shadow-sm animate-float">
+                    <i class="fa-solid fa-dna"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-700 leading-tight">Bio Career Catcher</h1>
+                    <p class="text-xs text-purple-400 font-bold">KSSM Form 4 • Subtopic 1.1</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="flex items-center gap-3 bg-slate-50/80 px-4 py-2 rounded-2xl border border-slate-100 shadow-inner">
+                <!-- Round -->
+                <div class="text-center px-2 border-r border-slate-200">
+                    <span class="text-[10px] uppercase font-bold text-gray-400 block">Round</span>
+                    <span id="round-display" class="text-lg font-bold text-purple-500">1 / 5</span>
+                </div>
+                <!-- Timer -->
+                <div class="text-center px-2 border-r border-slate-200">
+                    <span class="text-[10px] uppercase font-bold text-gray-400 block">Time</span>
+                    <span id="timer-display" class="text-lg font-bold text-amber-500">30s</span>
+                </div>
+                <!-- Lives -->
+                <div class="text-center px-2 border-r border-slate-200">
+                    <span class="text-[10px] uppercase font-bold text-gray-400 block">Lives</span>
+                    <div id="lives-display" class="flex gap-1 text-red-400 text-sm mt-1">
+                        <i class="fa-solid fa-heart animate-heart"></i>
+                        <i class="fa-solid fa-heart animate-heart"></i>
+                        <i class="fa-solid fa-heart animate-heart"></i>
+                        <i class="fa-solid fa-heart animate-heart"></i>
+                        <i class="fa-solid fa-heart animate-heart"></i>
+                    </div>
+                </div>
+                <!-- Score -->
+                <div class="text-center px-2">
+                    <span class="text-[10px] uppercase font-bold text-gray-400 block">Score</span>
+                    <span id="score-display" class="text-lg font-bold text-emerald-500">0</span>
+                </div>
+            </div>
+
+            <!-- Audio & Pause Controls -->
+            <div class="flex items-center gap-2">
+                <button id="btn-music" onclick="toggleAudio()" class="w-10 h-10 rounded-xl bg-pastelPurple text-purple-700 flex items-center justify-center btn-pastel" title="Toggle Music">
+                    <i class="fa-solid fa-music"></i>
+                </button>
+                <button id="btn-pause" onclick="pauseGame()" class="w-10 h-10 rounded-xl bg-pastelYellow text-amber-700 flex items-center justify-center btn-pastel hidden" title="Pause Game">
+                    <i class="fa-solid fa-pause"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- CANVAS GAMEPLAY AREA -->
+        <div class="relative w-full aspect-[4/3] sm:aspect-[16/9] max-h-[500px] flex justify-center items-center">
+            <canvas id="gameCanvas" class="w-full h-full shadow-inner border-2 border-slate-100"></canvas>
+
+            <!-- TOUCH CONTROLS OVERLAY (For Mobile) -->
+            <div id="touch-controls" class="absolute bottom-4 left-0 right-0 flex justify-between px-6 pointer-events-none sm:hidden">
+                <button id="btn-left" class="pointer-events-auto w-16 h-16 rounded-full bg-white/80 backdrop-blur border-2 border-purple-200 text-purple-600 text-2xl active:bg-purple-200 flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <button id="btn-right" class="pointer-events-auto w-16 h-16 rounded-full bg-white/80 backdrop-blur border-2 border-purple-200 text-purple-600 text-2xl active:bg-purple-200 flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- MAIN MENU OVERLAY -->
+            <div id="menu-overlay" class="absolute inset-0 glass-overlay rounded-3xl flex flex-col items-center justify-center p-6 text-center z-20">
+                <div class="w-16 h-16 rounded-3xl bg-pastelGreen flex items-center justify-center text-emerald-600 text-3xl mb-3 shadow-md animate-float">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-700 mb-1">Bio Career Catcher</h2>
+                <p class="text-sm text-gray-500 max-w-md mb-4 font-semibold">Master Biology Fields & Careers! Catch relevant study specimens, avoid unrelated items.</p>
+
+                <!-- Graphical 3-Step Instructions -->
+                <div class="grid grid-cols-3 gap-3 max-w-xl w-full mb-6">
+                    <div class="bg-white/90 p-3 rounded-2xl border border-purple-100 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-10 h-10 rounded-full bg-pastelPurple/40 text-purple-600 flex items-center justify-center text-lg mb-2">
+                            <i class="fa-solid fa-user-astronaut"></i>
+                        </div>
+                        <span class="text-xs font-bold text-gray-700">1. Select Avatar</span>
+                        <span class="text-[11px] text-gray-500 mt-0.5">Each career targets specific items!</span>
+                    </div>
+                    <div class="bg-white/90 p-3 rounded-2xl border border-green-100 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-10 h-10 rounded-full bg-pastelGreen/50 text-emerald-600 flex items-center justify-center text-lg mb-2">
+                            <i class="fa-solid fa-basket-shopping"></i>
+                        </div>
+                        <span class="text-xs font-bold text-gray-700">2. Catch Correct Items</span>
+                        <span class="text-[11px] text-gray-500 mt-0.5">Move Left/Right to collect matched tools!</span>
+                    </div>
+                    <div class="bg-white/90 p-3 rounded-2xl border border-red-100 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-10 h-10 rounded-full bg-pastelPink/50 text-red-500 flex items-center justify-center text-lg mb-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <span class="text-xs font-bold text-gray-700">3. Avoid Wrong Items</span>
+                        <span class="text-[11px] text-gray-500 mt-0.5">Wrong items lose 1 Heart (5 Lives Max).</span>
+                    </div>
+                </div>
+
+                <button onclick="startGame()" class="px-8 py-3 bg-pastelGreen hover:bg-emerald-300 text-emerald-800 text-lg font-bold rounded-2xl btn-pastel flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i> START GAME
+                </button>
+            </div>
+
+            <!-- PAUSE OVERLAY -->
+            <div id="pause-overlay" class="absolute inset-0 glass-overlay rounded-3xl flex flex-col items-center justify-center p-6 text-center z-20 hidden">
+                <div class="w-16 h-16 rounded-3xl bg-pastelYellow flex items-center justify-center text-amber-600 text-3xl mb-3 shadow-md animate-float">
+                    <i class="fa-solid fa-pause"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-700 mb-2">Game Paused</h2>
+                <p class="text-sm text-gray-500 mb-6 font-semibold">Take a quick breather! Ready to resume your field research?</p>
+                
+                <div class="flex gap-4">
+                    <button onclick="resumeGame()" class="px-6 py-3 bg-pastelGreen hover:bg-emerald-300 text-emerald-800 font-bold rounded-2xl btn-pastel flex items-center gap-2">
+                        <i class="fa-solid fa-play"></i> RESUME
+                    </button>
+                    <button onclick="resetToMenu()" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl btn-pastel flex items-center gap-2">
+                        <i class="fa-solid fa-house"></i> MAIN MENU
+                    </button>
+                </div>
+            </div>
+
+            <!-- ROUND SUMMARY OVERLAY -->
+            <div id="round-overlay" class="absolute inset-0 glass-overlay rounded-3xl flex flex-col items-center justify-center p-6 text-center z-20 hidden">
+                <div class="w-14 h-14 rounded-2xl bg-pastelBlue flex items-center justify-center text-blue-600 text-2xl mb-2 shadow-md animate-float">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h3 id="round-title" class="text-2xl font-bold text-gray-700 mb-1">Round 1 Complete!</h3>
+                <p id="round-desc" class="text-sm text-gray-600 max-w-md mb-4 bg-white/90 p-3 rounded-xl border border-slate-100 shadow-sm font-semibold"></p>
+                
+                <button onclick="nextRound()" class="px-6 py-3 bg-pastelPurple hover:bg-purple-300 text-purple-800 font-bold rounded-2xl btn-pastel flex items-center gap-2">
+                    NEXT ROUND <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- GAME OVER / VICTORY OVERLAY -->
+            <div id="gameover-overlay" class="absolute inset-0 glass-overlay rounded-3xl flex flex-col items-center justify-center p-6 text-center z-20 hidden">
+                <div id="gameover-icon" class="w-16 h-16 rounded-3xl bg-pastelPink flex items-center justify-center text-red-500 text-3xl mb-3 shadow-md animate-float">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h2 id="gameover-title" class="text-3xl font-bold text-gray-700 mb-1">Game Over!</h2>
+                <p id="gameover-msg" class="text-sm text-gray-500 mb-4 font-semibold">Great effort learning about Biology Careers!</p>
+                
+                <div class="bg-white/90 px-6 py-3 rounded-2xl border border-slate-100 shadow-sm mb-6 flex gap-6">
+                    <div>
+                        <span class="text-xs text-gray-400 block font-bold">TOTAL SCORE</span>
+                        <span id="final-score" class="text-2xl font-bold text-emerald-600">0</span>
+                    </div>
+                    <div class="border-l border-slate-100 pl-6">
+                        <span class="text-xs text-gray-400 block font-bold">ROUNDS CLEARED</span>
+                        <span id="final-rounds" class="text-2xl font-bold text-purple-600">0 / 5</span>
+                    </div>
+                </div>
+
+                <button onclick="startGame()" class="px-8 py-3 bg-pastelGreen hover:bg-emerald-300 text-emerald-800 text-lg font-bold rounded-2xl btn-pastel flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> PLAY AGAIN
+                </button>
+            </div>
+
+        </div>
+
+        <!-- FOOTER INFO / FIELD REFERENCE -->
+        <footer class="w-full mt-3 pt-2 border-t border-slate-100 flex flex-wrap justify-between items-center text-xs text-gray-400">
+            <span>Form 4 Biology Chapter 1.1: Fields & Careers</span>
+            <span id="current-field-hint" class="font-bold text-purple-500">Current Field: Ready to start</span>
+        </footer>
+
+    </div>
+
+    <!-- GAME LOGIC SCRIPT -->
+    <script>
+        // --- DATA STRUCTURE FOR ROUNDS & CAREERS (Subtopic 1.1) ---
+        const ROUNDS_DATA = [
+            {
+                round: 1,
+                field: "Botany",
+                career: "Botanist",
+                description: "Botany is the scientific study of plants. As a Botanist, collect plant specimens, leaves, and seeds!",
+                avatarIcon: "fa-seedling",
+                avatarColor: "#77DD77", // Pastel Green
+                targetItems: [
+                    { name: "Leaf Specimen", image: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=150&auto=format&fit=crop&q=80", color: "#4ADE80" },
+                    { name: "Flower Sample", image: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=150&auto=format&fit=crop&q=80", color: "#FBBF24" },
+                    { name: "Plant Cell/Moss", image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=150&auto=format&fit=crop&q=80", color: "#22C55E" },
+                    { name: "Seedling", image: "https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=150&auto=format&fit=crop&q=80", color: "#16A34A" }
+                ],
+                wrongItems: [
+                    { name: "Animal Bone", image: "https://images.unsplash.com/photo-1559827291-72ee739d0d9a?w=150&auto=format&fit=crop&q=80", color: "#94A3B8" },
+                    { name: "Bacteria Culture", image: "https://images.unsplash.com/photo-1583912267670-657592e38c53?w=150&auto=format&fit=crop&q=80", color: "#F43F5E" },
+                    { name: "Tropical Fish", image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=150&auto=format&fit=crop&q=80", color: "#38BDF8" }
+                ]
+            },
+            {
+                round: 2,
+                field: "Zoology",
+                career: "Zoologist",
+                description: "Zoology is the study of animals and their behavior. Collect animal prints, bones, and fauna data!",
+                avatarIcon: "fa-paw",
+                avatarColor: "#FFB7B2", // Pastel Pink
+                targetItems: [
+                    { name: "Animal Track", image: "https://images.unsplash.com/photo-1535083783855-76ae62b2914e?w=150&auto=format&fit=crop&q=80", color: "#F97316" },
+                    { name: "Bone Sample", image: "https://images.unsplash.com/photo-1559827291-72ee739d0d9a?w=150&auto=format&fit=crop&q=80", color: "#E2E8F0" },
+                    { name: "Bird Feather", image: "https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?w=150&auto=format&fit=crop&q=80", color: "#FB923C" },
+                    { name: "Tiger Specimen", image: "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=150&auto=format&fit=crop&q=80", color: "#EC4899" }
+                ],
+                wrongItems: [
+                    { name: "Green Leaf", image: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=150&auto=format&fit=crop&q=80", color: "#22C55E" },
+                    { name: "Seaweed", image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=150&auto=format&fit=crop&q=80", color: "#0EA5E9" },
+                    { name: "Petri Dish", image: "https://images.unsplash.com/photo-1583912267670-657592e38c53?w=150&auto=format&fit=crop&q=80", color: "#A855F7" }
+                ]
+            },
+            {
+                round: 3,
+                field: "Microbiology",
+                career: "Microbiologist",
+                description: "Microbiology studies microscopic organisms like bacteria & viruses. Collect microbes & petri dishes!",
+                avatarIcon: "fa-microscope",
+                avatarColor: "#C3B1E1", // Pastel Purple
+                targetItems: [
+                    { name: "Microbe Culture", image: "https://images.unsplash.com/photo-1583912267670-657592e38c53?w=150&auto=format&fit=crop&q=80", color: "#A855F7" },
+                    { name: "Petri Dish", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?w=150&auto=format&fit=crop&q=80", color: "#818CF8" },
+                    { name: "Microscope Lens", image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=150&auto=format&fit=crop&q=80", color: "#C084FC" },
+                    { name: "Lab Test Tube", image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=150&auto=format&fit=crop&q=80", color: "#6366F1" }
+                ],
+                wrongItems: [
+                    { name: "Pinecone", image: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=150&auto=format&fit=crop&q=80", color: "#15803D" },
+                    { name: "Dolphin", image: "https://images.unsplash.com/photo-1570481662006-a3a1374699e8?w=150&auto=format&fit=crop&q=80", color: "#0284C7" },
+                    { name: "Butterfly", image: "https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=150&auto=format&fit=crop&q=80", color: "#D97706" }
+                ]
+            },
+            {
+                round: 4,
+                field: "Marine Biology",
+                career: "Marine Biologist",
+                description: "Marine Biology focuses on ocean life and aquatic ecosystems. Collect fish, coral, and shells!",
+                avatarIcon: "fa-fish-fins",
+                avatarColor: "#AEC6CF", // Pastel Blue
+                targetItems: [
+                    { name: "Tropical Fish", image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=150&auto=format&fit=crop&q=80", color: "#0284C7" },
+                    { name: "Seashell", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=150&auto=format&fit=crop&q=80", color: "#38BDF8" },
+                    { name: "Coral Reef", image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=150&auto=format&fit=crop&q=80", color: "#F43F5E" },
+                    { name: "Starfish", image: "https://images.unsplash.com/photo-1545671913-b89ac1b4ac10?w=150&auto=format&fit=crop&q=80", color: "#0369A1" }
+                ],
+                wrongItems: [
+                    { name: "Desert Cactus", image: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=150&auto=format&fit=crop&q=80", color: "#16A34A" },
+                    { name: "Microscope", image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=150&auto=format&fit=crop&q=80", color: "#7C3AED" },
+                    { name: "Bird Feather", image: "https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?w=150&auto=format&fit=crop&q=80", color: "#EA580C" }
+                ]
+            },
+            {
+                round: 5,
+                field: "Genetics",
+                career: "Geneticist",
+                description: "Genetics studies heredity and gene variation. Collect DNA strands, chromosomes, and gene sequences!",
+                avatarIcon: "fa-dna",
+                avatarColor: "#FDFD96", // Pastel Yellow
+                targetItems: [
+                    { name: "DNA Structure", image: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=150&auto=format&fit=crop&q=80", color: "#EAB308" },
+                    { name: "Gene Sequence", image: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=150&auto=format&fit=crop&q=80", color: "#CA8A04" },
+                    { name: "Lab Flask", image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=150&auto=format&fit=crop&q=80", color: "#E11D48" },
+                    { name: "Cell Structure", image: "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=150&auto=format&fit=crop&q=80", color: "#2563EB" }
+                ],
+                wrongItems: [
+                    { name: "Plant Leaf", image: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=150&auto=format&fit=crop&q=80", color: "#16A34A" },
+                    { name: "Seashell", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=150&auto=format&fit=crop&q=80", color: "#0284C7" },
+                    { name: "Paw Track", image: "https://images.unsplash.com/photo-1535083783855-76ae62b2914e?w=150&auto=format&fit=crop&q=80", color: "#D97706" }
+                ]
+            }
+        ];
+
+        // --- GAME VARIABLES ---
+        let canvas, ctx;
+        let currentRoundIdx = 0;
+        let score = 0;
+        let lives = 5;
+        let timeLeft = 30;
+        let timerInterval = null;
+        let isPaused = false;
+        let isPlaying = false;
+        let animationFrameId = null;
+
+        // Audio State & Tone.js Synths
+        let isAudioMuted = false;
+        let audioInitialized = false;
+        let synth = null;
+        let bgSynth = null;
+        let bgLoop = null;
+
+        // Player & Gameplay Entities
+        let player = {
+            x: 0,
+            y: 0,
+            width: 90,
+            height: 65,
+            speed: 7
+        };
+        let fallingItems = [];
+        let spawnTimer = 0;
+        const spawnInterval = 120; // Controls item fall frequency (Slower spawning rate)
+        let bgParticles = [];
+
+        // Image cache to store loaded HTMLImageElement objects
+        const imageCache = {};
+
+        function getImage(url) {
+            if (!imageCache[url]) {
+                const img = new Image();
+                img.src = url;
+                imageCache[url] = img;
+            }
+            return imageCache[url];
+        }
+
+        function initBgParticles() {
+            bgParticles = [];
+            for (let i = 0; i < 20; i++) {
+                bgParticles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 4 + 2,
+                    speedY: Math.random() * 0.4 + 0.1,
+                    alpha: Math.random() * 0.4 + 0.2
+                });
+            }
+        }
+
+        // Initialize Canvas & Game state on window load
+        window.onload = function () {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+
+            // Set canvas size based on layout
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width || 800;
+            canvas.height = rect.height || 450;
+
+            player.x = canvas.width / 2 - player.width / 2;
+            player.y = canvas.height - player.height - 20;
+
+            setupControls();
+            initBgParticles();
+            initAudio();
+
+            // Resize listener for responsive canvas resizing
+            window.addEventListener('resize', () => {
+                const r = canvas.getBoundingClientRect();
+                if (r.width && r.height) {
+                    canvas.width = r.width;
+                    canvas.height = r.height;
+                    player.y = canvas.height - player.height - 20;
+                }
+            });
+        };
+
+        // --- ENHANCED AUDIO FUNCTIONS (Tone.js BGM & Sfx) ---
+        function initAudio() {
+            if (audioInitialized) return;
+            try {
+                // SFX PolySynth
+                synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.2 }
+                }).toDestination();
+                synth.volume.value = -8;
+
+                // Background Melodic Ambient Synth
+                bgSynth = new Tone.PolySynth(Tone.AMSynth, {
+                    harmonicity: 1.2,
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.2, decay: 0.3, sustain: 0.4, release: 0.8 }
+                }).toDestination();
+                bgSynth.volume.value = -18;
+
+                // Cute Pastel Background Chords Loop
+                const chords = [
+                    ["C4", "E4", "G4"],
+                    ["A3", "C4", "E4"],
+                    ["F3", "A3", "C4"],
+                    ["G3", "B3", "D4"]
+                ];
+                let chordIdx = 0;
+                bgLoop = new Tone.Loop((time) => {
+                    if (!isAudioMuted && isPlaying && !isPaused) {
+                        bgSynth.triggerAttackRelease(chords[chordIdx], "2n", time);
+                        chordIdx = (chordIdx + 1) % chords.length;
+                    }
+                }, "2n");
+                
+                Tone.Transport.bpm.value = 85;
+                Tone.Transport.start();
+                bgLoop.start(0);
+
+                audioInitialized = true;
+            } catch (e) {
+                console.log("Audio synth init deferred", e);
+            }
+        }
+
+        function playSound(type) {
+            if (isAudioMuted || !synth) return;
+            try {
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                if (type === 'catch') {
+                    synth.triggerAttackRelease(["C5", "E5", "G5"], "16n");
+                } else if (type === 'wrong') {
+                    synth.triggerAttackRelease(["F3", "C3"], "8n");
+                } else if (type === 'win') {
+                    synth.triggerAttackRelease(["C4", "E4", "G4", "C5", "E5"], "8n");
+                }
+            } catch (e) {}
+        }
+
+        function toggleAudio() {
+            if (!audioInitialized) {
+                initAudio();
+            }
+            isAudioMuted = !isAudioMuted;
+            const btn = document.getElementById('btn-music');
+            btn.innerHTML = isAudioMuted ? 
+                '<i class="fa-solid fa-music-slash text-gray-400"></i>' : 
+                '<i class="fa-solid fa-music"></i>';
+        }
+
+        // --- CONTROLS SYSTEM ---
+        const keys = { left: false, right: false };
+
+        function setupControls() {
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+            });
+
+            // Touch support for buttons
+            const btnLeft = document.getElementById('btn-left');
+            const btnRight = document.getElementById('btn-right');
+
+            const bindTouch = (elem, keyName) => {
+                elem.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; });
+                elem.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+                elem.addEventListener('mousedown', () => { keys[keyName] = true; });
+                elem.addEventListener('mouseup', () => { keys[keyName] = false; });
+            };
+
+            bindTouch(btnLeft, 'left');
+            bindTouch(btnRight, 'right');
+        }
+
+        // --- GAME FLOW MANAGEMENT ---
+        function startGame() {
+            currentRoundIdx = 0;
+            score = 0;
+            lives = 5;
+            
+            document.getElementById('menu-overlay').classList.add('hidden');
+            document.getElementById('gameover-overlay').classList.add('hidden');
+            document.getElementById('pause-overlay').classList.add('hidden');
+            document.getElementById('btn-pause').classList.remove('hidden');
+
+            startRound(currentRoundIdx);
+        }
+
+        function startRound(roundIdx) {
+            const data = ROUNDS_DATA[roundIdx];
+            timeLeft = 30;
+            fallingItems = [];
+            spawnTimer = 0;
+
+            // Reset player position
+            player.x = canvas.width / 2 - player.width / 2;
+
+            // Update UI elements
+            updateUI();
+            document.getElementById('current-field-hint').innerText = `Current Field: ${data.field} (${data.career})`;
+
+            isPlaying = true;
+            isPaused = false;
+
+            // Start Round Timer
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isPaused && isPlaying) {
+                    timeLeft--;
+                    document.getElementById('timer-display').innerText = `${timeLeft}s`;
+                    if (timeLeft <= 0) {
+                        endRound(true);
+                    }
+                }
+            }, 1000);
+
+            // Loop frame
+            cancelAnimationFrame(animationFrameId);
+            gameLoop();
+        }
+
+        function pauseGame() {
+            if (!isPlaying) return;
+            isPaused = true;
+            document.getElementById('pause-overlay').classList.remove('hidden');
+        }
+
+        function resumeGame() {
+            isPaused = false;
+            document.getElementById('pause-overlay').classList.add('hidden');
+            gameLoop();
+        }
+
+        function resetToMenu() {
+            isPlaying = false;
+            isPaused = false;
+            clearInterval(timerInterval);
+            cancelAnimationFrame(animationFrameId);
+
+            document.getElementById('pause-overlay').classList.add('hidden');
+            document.getElementById('round-overlay').classList.add('hidden');
+            document.getElementById('gameover-overlay').classList.add('hidden');
+            document.getElementById('menu-overlay').classList.remove('hidden');
+            document.getElementById('btn-pause').classList.add('hidden');
+        }
+
+        function endRound(success) {
+            isPlaying = false;
+            clearInterval(timerInterval);
+            cancelAnimationFrame(animationFrameId);
+
+            if (success) {
+                playSound('win');
+                if (currentRoundIdx < ROUNDS_DATA.length - 1) {
+                    // Show Round Complete Modal
+                    const rData = ROUNDS_DATA[currentRoundIdx];
+                    document.getElementById('round-title').innerText = `Round ${rData.round} Cleared!`;
+                    document.getElementById('round-desc').innerText = `Great job as a ${rData.career}! You mastered ${rData.field}. Ready for the next field?`;
+                    document.getElementById('round-overlay').classList.remove('hidden');
+                } else {
+                    // Game Complete Victory
+                    showGameOver(true);
+                }
+            } else {
+                // Out of lives
+                showGameOver(false);
+            }
+        }
+
+        function nextRound() {
+            document.getElementById('round-overlay').classList.add('hidden');
+            currentRoundIdx++;
+            startRound(currentRoundIdx);
+        }
+
+        function showGameOver(victory) {
+            isPlaying = false;
+            clearInterval(timerInterval);
+
+            const iconContainer = document.getElementById('gameover-icon');
+            const title = document.getElementById('gameover-title');
+            const msg = document.getElementById('gameover-msg');
+
+            if (victory) {
+                iconContainer.className = "w-16 h-16 rounded-3xl bg-pastelGreen flex items-center justify-center text-emerald-600 text-3xl mb-3 shadow-sm";
+                iconContainer.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+                title.innerText = "Congratulations!";
+                msg.innerText = "You have successfully completed all 5 fields in Biology Careers!";
+            } else {
+                iconContainer.className = "w-16 h-16 rounded-3xl bg-pastelPink flex items-center justify-center text-red-500 text-3xl mb-3 shadow-sm";
+                iconContainer.innerHTML = '<i class="fa-solid fa-heart-crack"></i>';
+                title.innerText = "Out of Lives!";
+                msg.innerText = "Careful! Collecting wrong specimens damages your biological research.";
+            }
+
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-rounds').innerText = `${currentRoundIdx + (victory ? 1 : 0)} / 5`;
+            document.getElementById('gameover-overlay').classList.remove('hidden');
+        }
+
+        function updateUI() {
+            document.getElementById('round-display').innerText = `${currentRoundIdx + 1} / 5`;
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('timer-display').innerText = `${timeLeft}s`;
+
+            // Hearts render
+            const livesContainer = document.getElementById('lives-display');
+            livesContainer.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const heart = document.createElement('i');
+                if (i < lives) {
+                    heart.className = "fa-solid fa-heart text-red-400 animate-heart";
+                } else {
+                    heart.className = "fa-regular fa-heart text-slate-300";
+                }
+                livesContainer.appendChild(heart);
+            }
+        }
+
+        // --- ITEM SPAWNING LOGIC ---
+        function spawnItem() {
+            const currentRound = ROUNDS_DATA[currentRoundIdx];
+            const isTarget = Math.random() < 0.65; // 65% chance of correct item
+
+            let itemData;
+            if (isTarget) {
+                itemData = currentRound.targetItems[Math.floor(Math.random() * currentRound.targetItems.length)];
+            } else {
+                itemData = currentRound.wrongItems[Math.floor(Math.random() * currentRound.wrongItems.length)];
+            }
+
+            // Preload image
+            if (itemData.image) {
+                getImage(itemData.image);
+            }
+
+            const itemSize = 52;
+            const item = {
+                x: Math.random() * (canvas.width - itemSize - 20) + 10,
+                y: -itemSize,
+                size: itemSize,
+                speed: 1.1 + Math.random() * 0.8 + (currentRoundIdx * 0.15),
+                wobble: Math.random() * Math.PI * 2,
+                wobbleSpeed: 0.03 + Math.random() * 0.02,
+                isTarget: isTarget,
+                data: itemData
+            };
+
+            fallingItems.push(item);
+        }
+
+        // --- MAIN GAME LOOP ---
+        function gameLoop() {
+            if (!isPlaying || isPaused) return;
+
+            // Clear Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Background Floating Soft Particles
+            drawBgParticles();
+
+            // Update Player Position
+            if (keys.left && player.x > 10) {
+                player.x -= player.speed;
+            }
+            if (keys.right && player.x < canvas.width - player.width - 10) {
+                player.x += player.speed;
+            }
+
+            // Draw Player Avatar (Career Specialist)
+            drawPlayer();
+
+            // Spawn Falling Items
+            spawnTimer++;
+            if (spawnTimer >= spawnInterval) {
+                spawnItem();
+                spawnTimer = 0;
+            }
+
+            // Update and Draw Falling Items
+            for (let i = fallingItems.length - 1; i >= 0; i--) {
+                const item = fallingItems[i];
+                item.y += item.speed;
+                item.wobble += item.wobbleSpeed;
+                const wobbleX = item.x + Math.sin(item.wobble) * 8; // Gentle sway effect
+
+                // Draw Item with soft oscillation
+                drawItem(item, wobbleX);
+
+                // Collision Detection with Player Basket
+                if (
+                    item.y + item.size >= player.y &&
+                    item.y <= player.y + player.height &&
+                    wobbleX + item.size >= player.x &&
+                    wobbleX <= player.x + player.width
+                ) {
+                    // Collision occurred
+                    if (item.isTarget) {
+                        score += 10;
+                        playSound('catch');
+                    } else {
+                        lives--;
+                        playSound('wrong');
+                        if (lives <= 0) {
+                            endRound(false);
+                            return;
+                        }
+                    }
+                    updateUI();
+                    fallingItems.splice(i, 1);
+                    continue;
+                }
+
+                // Remove out of bounds items
+                if (item.y > canvas.height) {
+                    fallingItems.splice(i, 1);
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        // --- CANVAS RENDERING HELPERS ---
+        function drawBgParticles() {
+            bgParticles.forEach(p => {
+                p.y -= p.speedY;
+                if (p.y < 0) p.y = canvas.height;
+                ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawPlayer() {
+            const rData = ROUNDS_DATA[currentRoundIdx];
+
+            ctx.save();
+            ctx.shadowColor = 'rgba(148, 163, 184, 0.35)';
+            ctx.shadowBlur = 12;
+            ctx.shadowOffsetY = 6;
+
+            const bx = player.x;
+            const by = player.y;
+            const bw = player.width;
+            const bh = player.height;
+
+            // 1. Draw Basket Handle (Arc at the top)
+            ctx.beginPath();
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = '#D4A373'; // Pastel wooden brown
+            ctx.arc(bx + bw / 2, by + bh * 0.4, bw * 0.35, Math.PI, 0, false);
+            ctx.stroke();
+
+            // 2. Basket Body (Trapezoid shape)
+            ctx.fillStyle = '#E9EDC9'; // Warm pastel basket weave background
+            ctx.beginPath();
+            ctx.moveTo(bx, by + bh * 0.35);
+            ctx.lineTo(bx + bw, by + bh * 0.35);
+            ctx.lineTo(bx + bw * 0.88, by + bh);
+            ctx.lineTo(bx + bw * 0.12, by + bh);
+            ctx.closePath();
+            ctx.fill();
+
+            // Basket Rim (Top Edge)
+            ctx.fillStyle = '#CCD5AE';
+            ctx.beginPath();
+            ctx.roundRect(bx - 3, by + bh * 0.3, bw + 6, bh * 0.14, 6);
+            ctx.fill();
+
+            // 3. Basket Weave Lines Effect
+            ctx.strokeStyle = 'rgba(166, 138, 100, 0.25)';
+            ctx.lineWidth = 2;
+            // Vertical weave lines
+            for (let i = 1; i <= 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(bx + (bw / 4) * i, by + bh * 0.44);
+                ctx.lineTo(bx + (bw / 4) * i, by + bh * 0.92);
+                ctx.stroke();
+            }
+            // Horizontal weave line
+            ctx.beginPath();
+            ctx.moveTo(bx + bw * 0.05, by + bh * 0.68);
+            ctx.lineTo(bx + bw * 0.95, by + bh * 0.68);
+            ctx.stroke();
+
+            // 4. Biology Career Badge on the front of the Basket
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+            ctx.shadowBlur = 4;
+            ctx.fillStyle = rData.avatarColor;
+            ctx.beginPath();
+            ctx.arc(bx + bw / 2, by + bh * 0.65, 15, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Career Badge Icon
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '900 14px "Font Awesome 6 Free"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(getIconUnicode(rData.avatarIcon), bx + bw / 2, by + bh * 0.65);
+
+            // Career Name Label on Basket Rim
+            ctx.fillStyle = '#4A5568';
+            ctx.font = '900 10px "Fredoka", sans-serif';
+            ctx.fillText(rData.career, bx + bw / 2, by + bh * 0.37);
+
+            ctx.restore();
+        }
+
+        function drawItem(item, renderX) {
+            ctx.save();
+
+            const centerX = renderX + item.size / 2;
+            const centerY = item.y + item.size / 2;
+            const radius = item.size / 2;
+
+            // Background Shadow
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetY = 4;
+
+            // Base Circle Frame
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fillStyle = item.isTarget ? '#FFFFFF' : '#FFE4E6';
+            ctx.fill();
+
+            ctx.shadowColor = 'transparent';
+
+            // Draw Real Photo with Circular Clipping
+            if (item.data.image) {
+                const img = getImage(item.data.image);
+                if (img.complete && img.naturalWidth !== 0) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius - 3, 0, Math.PI * 2);
+                    ctx.clip();
+
+                    ctx.drawImage(
+                        img,
+                        centerX - (radius - 3),
+                        centerY - (radius - 3),
+                        (radius - 3) * 2,
+                        (radius - 3) * 2
+                    );
+                    ctx.restore();
+                }
+            }
+
+            // Outer Colored Border Ring
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = item.data.color || '#94A3B8';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Label text below item badge
+            ctx.fillStyle = '#334155';
+            ctx.font = 'bold 10px "Quicksand", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(item.data.name, centerX, centerY + radius + 4);
+
+            ctx.restore();
+        }
+
+        // Helper to convert FontAwesome icon class to glyphunicode for canvas rendering
+        function getIconUnicode(iconClass) {
+            const iconMap = {
+                'fa-seedling': '\uf4d8',
+                'fa-leaf': '\uf06c',
+                'fa-sun': '\uf185',
+                'fa-tree': '\uf1bb',
+                'fa-paw': '\uf1b0',
+                'fa-bone': '\uf5d7',
+                'fa-feather': '\uf52d',
+                'fa-dna': '\uf470',
+                'fa-microscope': '\uf610',
+                'fa-virus': '\ue074',
+                'fa-vial': '\uf492',
+                'fa-bacteria': '\ue059',
+                'fa-fish': '\uf578',
+                'fa-fish-fins': '\ue4f2',
+                'fa-water': '\uf773',
+                'fa-anchor': '\uf13d',
+                'fa-flask': '\uf0c3',
+                'fa-bug': '\uf188',
+                'fa-compact-disc': '\uf51f',
+                'fa-code-branch': '\uf126',
+                'fa-xmarks-lines': '\ue59a',
+                'fa-x': 'X'
+            };
+            return iconMap[iconClass] || '\uf06c';
+        }
+    </script>
+</body>
+</html>
