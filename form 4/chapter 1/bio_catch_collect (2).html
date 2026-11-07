@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio Career Catcher - Form 4 KSSM Biology</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Tone.js for Synthesized Sound & Background Audio -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pastelGreen: '#C1E1C1',
+                        pastelDarkGreen: '#77DD77',
+                        pastelBlue: '#AEC6CF',
+                        pastelYellow: '#FDFD96',
+                        pastelPink: '#FFB7B2',
+                        pastelPurple: '#C3B1E1',
+                        pastelBg: '#F4F7F6',
+                        pastelCard: '#FFFFFF',
+                        pastelText: '#4A5568'
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        quicksand: ['Quicksand', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #E8F0FE 0%, #F3E8FF 50%, #E6F4EA 100%);
+            user-select: none;
+            touch-action: manipulation;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, button, .font-title {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .pastel-shadow {
+            box-shadow: 0 15px 35px -5px rgba(160, 174, 192, 0.35), 0 10px 15px -6px rgba(160, 174, 192, 0.2);
+        }
+
+        .btn-pastel {
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 5px 0px rgba(0, 0, 0, 0.08);
+        }
+        .btn-pastel:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 0px rgba(0, 0, 0, 0.08);
+        }
+        .btn-pastel:active {
+            transform: translateY(2px) scale(0.98);
+            box-shadow: 0 2px 0px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Pulsing & Floating Animations */
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        .animate-heart {
+            animation: pulse-slow 1.2s infinite ease-in-out;
+        }
+
+        @keyframes float-gentle {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(2deg); }
+        }
+        .animate-float {
+            animation: float-gentle 3s ease-in-out infinite;
+        }
+
+        /* Glassmorphism overlays */
+        .glass-overlay {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+        }
+
+        canvas {
+            background: linear-gradient(180deg, #E6F3FF 0%, #F0F9FF 60%, #E2F0D9 100%);
+            border-radius: 1.5rem;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 sm:p-4 text-pastelText">
+
+    <!-- MAIN GAME CONTAINER -->
+    <div class="relative w-full max-w-4xl bg-white/90 backdrop-blur-sm rounded-3xl p-3 sm:p-6 pastel-shadow border-2 sm:border-4 border-white overflow-hidden flex flex-col items-center">
+        
+        <!-- HEADER / SCOREBOARD -->
+        <header class="w-full flex flex-wrap justify-between items-center gap-2 mb-2 sm:mb-3 px-1 sm:px-2">
+            <!-- Title -->
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-pastelGreen flex items-center justify-center text-emerald-700 text-xl sm:text-2xl font-bold shadow-sm animate-float">
+                    <i class="fa-solid fa-dna"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-2xl font-bold text-gray-700 leading-tight">Bio Career Catcher</h1>
+                    <p class="text-[10px] sm:text-xs text-purple-400 font-bold">KSSM Form 4 • Subtopic 1.1</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="flex items-center gap-1.5 sm:gap-3 bg-slate-50/80 px-2 sm:px-4 py-1.5 sm:py-2 rounded-2xl border border-slate-100 shadow-inner text-xs sm:text-base">
+                <!-- Round -->
+                <div class="text-center px-1 sm:px-2 border-r border-slate-200">
+                    <span class="text-[9px] sm:text-[10px] uppercase font-bold text-gray-400 block">Round</span>
+                    <span id="round-display" class="text-xs sm:text-lg font-bold text-purple-500">1 / 5</span>
+                </div>
+                <!-- Timer -->
+                <div class="text-center px-1 sm:px-2 border-r border-slate-200">
+                    <span class="text-[9px] sm:text-[10px] uppercase font-bold text-gray-400 block">Time</span>
+                    <span id="timer-display" class="text-xs sm:text-lg font-bold text-amber-500">30s</span>
+                </div>
+                <!-- Lives -->
+                <div class="text-center px-1 sm:px-2 border-r border-slate-200">
+                    <span class="text-[9px] sm:text-[10px] uppercase font-bold text-gray-400 block">Lives</span>
+                    <div id="lives-display" class="flex gap-0.5 sm:gap-1 text-red-400 text-xs sm:text-sm mt-0.5">
+                        <i class="fa-solid fa-heart animate-heart"></i>
+                        <i class="fa-solid fa-heart animate-heart"></i>
+                        <i class="fa-solid fa-heart animate-heart"></i>
+                        <i class="fa-solid fa-heart animate-heart"></i>
+                        <i class="fa-solid fa-heart animate-heart"></i>
+                    </div>
+                </div>
+                <!-- Score -->
+                <div class="text-center px-1 sm:px-2">
+                    <span class="text-[9px] sm:text-[10px] uppercase font-bold text-gray-400 block">Score</span>
+                    <span id="score-display" class="text-xs sm:text-lg font-bold text-emerald-500">0</span>
+                </div>
+            </div>
+
+            <!-- Audio & Pause Controls -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <button id="btn-music" onclick="toggleAudio()" class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-pastelPurple text-purple-700 flex items-center justify-center btn-pastel" title="Toggle Music">
+                    <i class="fa-solid fa-music text-xs sm:text-base"></i>
+                </button>
+                <button id="btn-pause" onclick="pauseGame()" class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-pastelYellow text-amber-700 flex items-center justify-center btn-pastel hidden" title="Pause Game">
+                    <i class="fa-solid fa-pause text-xs sm:text-base"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- CANVAS GAMEPLAY AREA -->
+        <div id="canvas-container" class="relative w-full aspect-[4/3] sm:aspect-[16/9] max-h-[500px] flex justify-center items-center">
+            <canvas id="gameCanvas" class="w-full h-full shadow-inner border-2 border-slate-100"></canvas>
+
+            <!-- TOUCH ON-SCREEN BUTTONS OVERLAY (Optional/Secondary for Mobile) -->
+            <div id="touch-controls" class="absolute bottom-3 left-0 right-0 flex justify-between px-4 pointer-events-none sm:hidden">
+                <button id="btn-left" class="pointer-events-auto w-12 h-12 rounded-full bg-white/80 backdrop-blur border-2 border-purple-200 text-purple-600 text-xl active:bg-purple-200 flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <button id="btn-right" class="pointer-events-auto w-12 h-12 rounded-full bg-white/80 backdrop-blur border-2 border-purple-200 text-purple-600 text-xl active:bg-purple-200 flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- MAIN MENU OVERLAY -->
+            <div id="menu-overlay" class="absolute inset-0 glass-overlay rounded-3xl flex flex-col items-center justify-center p-4 sm:p-6 text-center z-20 overflow-y-auto">
+                <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-3xl bg-pastelGreen flex items-center justify-center text-emerald-600 text-2xl sm:text-3xl mb-2 sm:mb-3 shadow-md animate-float">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-700 mb-1">Bio Career Catcher</h2>
+                <p class="text-xs sm:text-sm text-gray-500 max-w-md mb-3 sm:mb-4 font-semibold">Master Biology Fields & Careers! Catch relevant study specimens, avoid unrelated items.</p>
+
+                <!-- Graphical 3-Step Instructions -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 max-w-xl w-full mb-4 sm:mb-6">
+                    <div class="bg-white/90 p-2 sm:p-3 rounded-2xl border border-purple-100 flex sm:flex-col items-center text-left sm:text-center shadow-sm hover:shadow-md transition-shadow gap-3 sm:gap-0">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-pastelPurple/40 text-purple-600 flex items-center justify-center text-base sm:text-lg shrink-0 sm:mb-2">
+                            <i class="fa-solid fa-user-astronaut"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-gray-700 block">1. Select Avatar</span>
+                            <span class="text-[10px] sm:text-[11px] text-gray-500 mt-0.5 block">Each career targets specific items!</span>
+                        </div>
+                    </div>
+                    <div class="bg-white/90 p-2 sm:p-3 rounded-2xl border border-green-100 flex sm:flex-col items-center text-left sm:text-center shadow-sm hover:shadow-md transition-shadow gap-3 sm:gap-0">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-pastelGreen/50 text-emerald-600 flex items-center justify-center text-base sm:text-lg shrink-0 sm:mb-2">
+                            <i class="fa-solid fa-basket-shopping"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-gray-700 block">2. Catch Correct Items</span>
+                            <span class="text-[10px] sm:text-[11px] text-gray-500 mt-0.5 block">Drag, tap, or use Arrow Keys!</span>
+                        </div>
+                    </div>
+                    <div class="bg-white/90 p-2 sm:p-3 rounded-2xl border border-red-100 flex sm:flex-col items-center text-left sm:text-center shadow-sm hover:shadow-md transition-shadow gap-3 sm:gap-0">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-pastelPink/50 text-red-500 flex items-center justify-center text-base sm:text-lg shrink-0 sm:mb-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-gray-700 block">3. Avoid Wrong Items</span>
+                            <span class="text-[10px] sm:text-[11px] text-gray-500 mt-0.5 block">Wrong items lose 1 Heart (5 Lives Max).</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="startGame()" class="px-6 sm:px-8 py-2.5 sm:py-3 bg-pastelGreen hover:bg-emerald-300 text-emerald-800 text-base sm:text-lg font-bold rounded-2xl btn-pastel flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i> START GAME
+                </button>
+            </div>
+
+            <!-- PAUSE OVERLAY -->
+            <div id="pause-overlay" class="absolute inset-0 glass-overlay rounded-3xl flex flex-col items-center justify-center p-6 text-center z-20 hidden">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-pastelYellow flex items-center justify-center text-amber-600 text-2xl sm:text-3xl mb-3 shadow-md animate-float">
+                    <i class="fa-solid fa-pause"></i>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-700 mb-2">Game Paused</h2>
+                <p class="text-xs sm:text-sm text-gray-500 mb-6 font-semibold">Take a quick breather! Ready to resume your field research?</p>
+                
+                <div class="flex gap-3 sm:gap-4">
+                    <button onclick="resumeGame()" class="px-5 sm:px-6 py-2.5 sm:py-3 bg-pastelGreen hover:bg-emerald-300 text-emerald-800 font-bold rounded-2xl btn-pastel flex items-center gap-2 text-sm sm:text-base">
+                        <i class="fa-solid fa-play"></i> RESUME
+                    </button>
+                    <button onclick="resetToMenu()" class="px-5 sm:px-6 py-2.5 sm:py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl btn-pastel flex items-center gap-2 text-sm sm:text-base">
+                        <i class="fa-solid fa-house"></i> MAIN MENU
+                    </button>
+                </div>
+            </div>
+
+            <!-- ROUND SUMMARY OVERLAY -->
+            <div id="round-overlay" class="absolute inset-0 glass-overlay rounded-3xl flex flex-col items-center justify-center p-6 text-center z-20 hidden">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-pastelBlue flex items-center justify-center text-blue-600 text-xl sm:text-2xl mb-2 shadow-md animate-float">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h3 id="round-title" class="text-xl sm:text-2xl font-bold text-gray-700 mb-1">Round 1 Complete!</h3>
+                <p id="round-desc" class="text-xs sm:text-sm text-gray-600 max-w-md mb-4 bg-white/90 p-3 rounded-xl border border-slate-100 shadow-sm font-semibold"></p>
+                
+                <button onclick="nextRound()" class="px-6 py-3 bg-pastelPurple hover:bg-purple-300 text-purple-800 font-bold rounded-2xl btn-pastel flex items-center gap-2 text-sm sm:text-base">
+                    NEXT ROUND <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- GAME OVER / VICTORY OVERLAY -->
+            <div id="gameover-overlay" class="absolute inset-0 glass-overlay rounded-3xl flex flex-col items-center justify-center p-6 text-center z-20 hidden">
+                <div id="gameover-icon" class="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-pastelPink flex items-center justify-center text-red-500 text-2xl sm:text-3xl mb-3 shadow-md animate-float">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h2 id="gameover-title" class="text-2xl sm:text-3xl font-bold text-gray-700 mb-1">Game Over!</h2>
+                <p id="gameover-msg" class="text-xs sm:text-sm text-gray-500 mb-4 font-semibold">Great effort learning about Biology Careers!</p>
+                
+                <div class="bg-white/90 px-4 sm:px-6 py-3 rounded-2xl border border-slate-100 shadow-sm mb-6 flex gap-4 sm:gap-6">
+                    <div>
+                        <span class="text-[10px] sm:text-xs text-gray-400 block font-bold">TOTAL SCORE</span>
+                        <span id="final-score" class="text-xl sm:text-2xl font-bold text-emerald-600">0</span>
+                    </div>
+                    <div class="border-l border-slate-100 pl-4 sm:pl-6">
+                        <span class="text-[10px] sm:text-xs text-gray-400 block font-bold">ROUNDS CLEARED</span>
+                        <span id="final-rounds" class="text-xl sm:text-2xl font-bold text-purple-600">0 / 5</span>
+                    </div>
+                </div>
+
+                <button onclick="startGame()" class="px-6 sm:px-8 py-3 bg-pastelGreen hover:bg-emerald-300 text-emerald-800 text-base sm:text-lg font-bold rounded-2xl btn-pastel flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> PLAY AGAIN
+                </button>
+            </div>
+
+        </div>
+
+        <!-- FOOTER INFO / FIELD REFERENCE -->
+        <footer class="w-full mt-2 sm:mt-3 pt-2 border-t border-slate-100 flex flex-wrap justify-between items-center text-[10px] sm:text-xs text-gray-400">
+            <span>Form 4 Biology Chapter 1.1: Fields & Careers</span>
+            <span id="current-field-hint" class="font-bold text-purple-500">Current Field: Ready to start</span>
+        </footer>
+
+    </div>
+
+    <!-- GAME LOGIC SCRIPT -->
+    <script>
+        // --- GAME DATA: Form 4 KSSM Biology 1.1 Fields & Careers ---
+        const ROUNDS_DATA = [
+            {
+                round: 1,
+                field: "Botany",
+                career: "Botanist",
+                badgeIcon: "fa-seedling",
+                badgeColor: "#77DD77",
+                desc: "Studies plant structure, genetics, ecology, and classification.",
+                targetItems: [
+                    { name: "Flowering Plant", img: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Chloroplast", img: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Fern Leaf", img: "https://images.unsplash.com/photo-1534710961216-75c88202f43e?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Tree Bark", img: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&w=150&q=80" }
+                ],
+                wrongItems: [
+                    { name: "Animal Bone", img: "https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Bacteria", img: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&w=150&q=80" },
+                    { name: "DNA Strand", img: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&w=150&q=80" }
+                ]
+            },
+            {
+                round: 2,
+                field: "Zoology",
+                career: "Zoologist",
+                badgeIcon: "fa-paw",
+                badgeColor: "#FFB7B2",
+                desc: "Studies animals, their behavior, physiology, and habitats.",
+                targetItems: [
+                    { name: "Wild Tiger", img: "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Bird Feather", img: "https://images.unsplash.com/photo-1552728089-57bdde30beb3?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Reptile Scales", img: "https://images.unsplash.com/photo-1504450758481-7338eba7524a?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Insect Shell", img: "https://images.unsplash.com/photo-1534188753412-3e26d0d618d6?auto=format&fit=crop&w=150&q=80" }
+                ],
+                wrongItems: [
+                    { name: "Green Moss", img: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Petri Dish", img: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Virus Particle", img: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&w=150&q=80" }
+                ]
+            },
+            {
+                round: 3,
+                field: "Microbiology",
+                career: "Microbiologist",
+                badgeIcon: "fa-microscope",
+                badgeColor: "#AEC6CF",
+                desc: "Studies microscopic organisms such as bacteria, viruses, and fungi.",
+                targetItems: [
+                    { name: "Bacteria Culture", img: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Microscope Slide", img: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Fungal Spores", img: "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Yeast Cells", img: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=150&q=80" }
+                ],
+                wrongItems: [
+                    { name: "Jellyfish", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Flower Petal", img: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Elephant", img: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?auto=format&fit=crop&w=150&q=80" }
+                ]
+            },
+            {
+                round: 4,
+                field: "Marine Biology",
+                career: "Marine Biologist",
+                badgeIcon: "fa-fish",
+                badgeColor: "#C3B1E1",
+                desc: "Studies organisms living in ocean and saltwater environments.",
+                targetItems: [
+                    { name: "Coral Reef", img: "https://images.unsplash.com/photo-1546026423-cc4642628d2b?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Jellyfish", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Seaweed Algae", img: "https://images.unsplash.com/photo-1534710961216-75c88202f43e?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Clownfish", img: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?auto=format&fit=crop&w=150&q=80" }
+                ],
+                wrongItems: [
+                    { name: "Desert Cactus", img: "https://images.unsplash.com/photo-1509223197845-458d87318791?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Forest Squirrel", img: "https://images.unsplash.com/photo-1504006833117-8886a355efbf?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Human Heart", img: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&w=150&q=80" }
+                ]
+            },
+            {
+                round: 5,
+                field: "Genetics",
+                career: "Geneticist",
+                badgeIcon: "fa-dna",
+                badgeColor: "#FDFD96",
+                desc: "Studies genes, heredity, and genetic variation in organisms.",
+                targetItems: [
+                    { name: "DNA Double Helix", img: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Chromosome", img: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Gene Sequence", img: "https://images.unsplash.com/photo-1507668077129-56e32842fceb?auto=format&fit=crop&w=150&q=80" },
+                    { name: "RNA Strand", img: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=150&q=80" }
+                ],
+                wrongItems: [
+                    { name: "Sea Shell", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Oak Leaf", img: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Bird Nest", img: "https://images.unsplash.com/photo-1552728089-57bdde30beb3?auto=format&fit=crop&w=150&q=80" }
+                ]
+            }
+        ];
+
+        // --- GAME VARIABLES ---
+        let canvas, ctx;
+        let currentRoundIdx = 0;
+        let score = 0;
+        let lives = 5;
+        let timeLeft = 30;
+        let timerInterval = null;
+        let isPaused = false;
+        let isPlaying = false;
+        let animationFrameId = null;
+
+        // Touch & Drag state
+        let isDragging = false;
+
+        // Audio State & Tone.js Synths
+        let isAudioMuted = false;
+        let audioInitialized = false;
+        let synth = null;
+        let bgSynth = null;
+        let bgLoop = null;
+
+        // Player & Gameplay Entities
+        let player = {
+            x: 0,
+            y: 0,
+            width: 90,
+            height: 65,
+            speed: 8
+        };
+        let fallingItems = [];
+        let spawnTimer = 0;
+        const spawnInterval = 120; // Slower spawning rate
+        let bgParticles = [];
+
+        // Image cache
+        const imageCache = {};
+
+        function getImage(url) {
+            if (!imageCache[url]) {
+                const img = new Image();
+                img.src = url;
+                imageCache[url] = img;
+            }
+            return imageCache[url];
+        }
+
+        function resizeCanvas() {
+            if (!canvas) return;
+            const container = document.getElementById('canvas-container');
+            const rect = container.getBoundingClientRect();
+            
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            if (canvas.width < 480) {
+                player.width = 70;
+                player.height = 50;
+            } else {
+                player.width = 90;
+                player.height = 65;
+            }
+
+            player.y = canvas.height - player.height - 15;
+            if (player.x > canvas.width - player.width) {
+                player.x = canvas.width - player.width;
+            }
+            initBgParticles();
+        }
+
+        function initBgParticles() {
+            bgParticles = [];
+            for (let i = 0; i < 20; i++) {
+                bgParticles.push({
+                    x: Math.random() * (canvas ? canvas.width : 800),
+                    y: Math.random() * (canvas ? canvas.height : 450),
+                    radius: Math.random() * 4 + 2,
+                    speedY: Math.random() * 0.4 + 0.1,
+                    alpha: Math.random() * 0.4 + 0.2
+                });
+            }
+        }
+
+        // --- AUDIO ENGINE (Tone.js) ---
+        function initAudio() {
+            try {
+                if (typeof Tone === 'undefined') return;
+                synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: 'sine' },
+                    envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.2 }
+                }).toDestination();
+                synth.volume.value = -6;
+
+                bgSynth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: 'triangle' },
+                    envelope: { attack: 0.1, decay: 0.3, sustain: 0.4, release: 0.8 }
+                }).toDestination();
+                bgSynth.volume.value = -18;
+
+                const notes = ['C4', 'E4', 'G4', 'B4', 'C5', 'G4', 'E4', 'C4'];
+                let noteIdx = 0;
+                bgLoop = new Tone.Loop((time) => {
+                    if (!isAudioMuted && isPlaying && !isPaused) {
+                        bgSynth.triggerAttackRelease(notes[noteIdx], '8n', time);
+                        noteIdx = (noteIdx + 1) % notes.length;
+                    }
+                }, '4n');
+
+                audioInitialized = true;
+            } catch (e) {
+                console.log("Audio initialization skipped or restricted.");
+            }
+        }
+
+        function playSound(type) {
+            if (isAudioMuted || !audioInitialized || typeof Tone === 'undefined') return;
+            try {
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                if (type === 'catch') {
+                    synth.triggerAttackRelease(['C5', 'E5'], '16n');
+                } else if (type === 'wrong') {
+                    synth.triggerAttackRelease(['G3', 'Eb3'], '8n');
+                } else if (type === 'win') {
+                    synth.triggerAttackRelease(['C4', 'E4', 'G4', 'C5'], '8n');
+                } else if (type === 'over') {
+                    synth.triggerAttackRelease(['F3', 'Db3', 'C3'], '4n');
+                }
+            } catch (e) {}
+        }
+
+        function toggleAudio() {
+            isAudioMuted = !isAudioMuted;
+            const btn = document.getElementById('btn-music');
+            if (isAudioMuted) {
+                btn.classList.remove('bg-pastelPurple', 'text-purple-700');
+                btn.classList.add('bg-gray-200', 'text-gray-400');
+                btn.innerHTML = '<i class="fa-solid fa-volume-xmark text-xs sm:text-base"></i>';
+            } else {
+                btn.classList.remove('bg-gray-200', 'text-gray-400');
+                btn.classList.add('bg-pastelPurple', 'text-purple-700');
+                btn.innerHTML = '<i class="fa-solid fa-music text-xs sm:text-base"></i>';
+                if (Tone.context && Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+            }
+        }
+
+        // Initialize Canvas & Game state on window load
+        window.onload = function () {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+
+            resizeCanvas();
+            player.x = canvas.width / 2 - player.width / 2;
+
+            setupControls();
+            initBgParticles();
+            initAudio();
+
+            window.addEventListener('resize', resizeCanvas);
+        };
+
+        // --- CONTROLS SYSTEM ---
+        const keys = { left: false, right: false };
+
+        function setupControls() {
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+            });
+
+            const updateBasketPos = (clientX) => {
+                if (!canvas) return;
+                const rect = canvas.getBoundingClientRect();
+                const relativeX = clientX - rect.left;
+                player.x = Math.max(10, Math.min(canvas.width - player.width - 10, relativeX - player.width / 2));
+            };
+
+            canvas.addEventListener('touchstart', (e) => {
+                if (!isPlaying || isPaused) return;
+                isDragging = true;
+                if (e.touches.length > 0) {
+                    updateBasketPos(e.touches[0].clientX);
+                }
+            }, { passive: true });
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (!isPlaying || isPaused || !isDragging) return;
+                if (e.touches.length > 0) {
+                    updateBasketPos(e.touches[0].clientX);
+                }
+            }, { passive: true });
+
+            canvas.addEventListener('touchend', () => { isDragging = false; });
+
+            canvas.addEventListener('mousedown', (e) => {
+                if (!isPlaying || isPaused) return;
+                isDragging = true;
+                updateBasketPos(e.clientX);
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isPlaying || isPaused || !isDragging) return;
+                updateBasketPos(e.clientX);
+            });
+
+            window.addEventListener('mouseup', () => { isDragging = false; });
+
+            const btnLeft = document.getElementById('btn-left');
+            const btnRight = document.getElementById('btn-right');
+
+            const bindTouchBtn = (elem, keyName) => {
+                elem.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; });
+                elem.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+                elem.addEventListener('mousedown', () => { keys[keyName] = true; });
+                elem.addEventListener('mouseup', () => { keys[keyName] = false; });
+            };
+
+            bindTouchBtn(btnLeft, 'left');
+            bindTouchBtn(btnRight, 'right');
+        }
+
+        // --- GAMEFLOW CONTROL FUNCTIONS ---
+        function startGame() {
+            if (typeof Tone !== 'undefined' && Tone.context.state !== 'running') {
+                Tone.start();
+            }
+            if (bgLoop && audioInitialized) {
+                Tone.Transport.start();
+                bgLoop.start(0);
+            }
+
+            currentRoundIdx = 0;
+            score = 0;
+            lives = 5;
+
+            document.getElementById('menu-overlay').classList.add('hidden');
+            document.getElementById('gameover-overlay').classList.add('hidden');
+            document.getElementById('pause-overlay').classList.add('hidden');
+            document.getElementById('btn-pause').classList.remove('hidden');
+
+            startRound(currentRoundIdx);
+        }
+
+        function startRound(roundIdx) {
+            const data = ROUNDS_DATA[roundIdx];
+            timeLeft = 30;
+            fallingItems = [];
+            spawnTimer = 0;
+            isPaused = false;
+            isPlaying = true;
+
+            document.getElementById('current-field-hint').textContent = `Target Field: ${data.field} (${data.career})`;
+            updateUI();
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isPaused && isPlaying) {
+                    timeLeft--;
+                    updateUI();
+                    if (timeLeft <= 0) {
+                        endRound(true);
+                    }
+                }
+            }, 1000);
+
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            gameLoop();
+        }
+
+        function pauseGame() {
+            if (!isPlaying) return;
+            isPaused = true;
+            document.getElementById('pause-overlay').classList.remove('hidden');
+            document.getElementById('btn-pause').classList.add('hidden');
+        }
+
+        function resumeGame() {
+            isPaused = false;
+            document.getElementById('pause-overlay').classList.add('hidden');
+            document.getElementById('btn-pause').classList.remove('hidden');
+            gameLoop();
+        }
+
+        function resetToMenu() {
+            isPlaying = false;
+            isPaused = false;
+            if (timerInterval) clearInterval(timerInterval);
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+            document.getElementById('pause-overlay').classList.add('hidden');
+            document.getElementById('round-overlay').classList.add('hidden');
+            document.getElementById('gameover-overlay').classList.add('hidden');
+            document.getElementById('menu-overlay').classList.remove('hidden');
+            document.getElementById('btn-pause').classList.add('hidden');
+        }
+
+        function endRound(completedTime) {
+            isPlaying = false;
+            if (timerInterval) clearInterval(timerInterval);
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+            const roundData = ROUNDS_DATA[currentRoundIdx];
+
+            if (lives <= 0) {
+                playSound('over');
+                showGameOver(false);
+                return;
+            }
+
+            if (completedTime) {
+                playSound('win');
+                if (currentRoundIdx < ROUNDS_DATA.length - 1) {
+                    document.getElementById('round-title').textContent = `Round ${roundData.round} Cleared!`;
+                    document.getElementById('round-desc').innerHTML = `Awesome work as a <strong>${roundData.career}</strong>!<br><span class="text-xs text-gray-500">${roundData.desc}</span>`;
+                    document.getElementById('round-overlay').classList.remove('hidden');
+                } else {
+                    showGameOver(true);
+                }
+            }
+        }
+
+        function nextRound() {
+            document.getElementById('round-overlay').classList.add('hidden');
+            currentRoundIdx++;
+            if (currentRoundIdx < ROUNDS_DATA.length) {
+                startRound(currentRoundIdx);
+            } else {
+                showGameOver(true);
+            }
+        }
+
+        function showGameOver(isVictory) {
+            document.getElementById('gameover-overlay').classList.remove('hidden');
+            document.getElementById('btn-pause').classList.add('hidden');
+
+            const titleElem = document.getElementById('gameover-title');
+            const msgElem = document.getElementById('gameover-msg');
+            const iconElem = document.getElementById('gameover-icon');
+
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-rounds').textContent = `${isVictory ? ROUNDS_DATA.length : currentRoundIdx} / ${ROUNDS_DATA.length}`;
+
+            if (isVictory) {
+                titleElem.textContent = "Biology Master!";
+                msgElem.textContent = "Congratulations! You completed all Biology field research rounds!";
+                iconElem.className = "w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-pastelGreen flex items-center justify-center text-emerald-600 text-2xl sm:text-3xl mb-3 shadow-md animate-float";
+                iconElem.innerHTML = '<i class="fa-solid fa-award"></i>';
+            } else {
+                titleElem.textContent = "Research Ended!";
+                msgElem.textContent = "You ran out of lives! Review your Form 4 Biology subtopics and try again.";
+                iconElem.className = "w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-pastelPink flex items-center justify-center text-red-500 text-2xl sm:text-3xl mb-3 shadow-md animate-float";
+                iconElem.innerHTML = '<i class="fa-solid fa-heart-crack"></i>';
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('score-display').textContent = score;
+            document.getElementById('round-display').textContent = `${currentRoundIdx + 1} / 5`;
+            document.getElementById('timer-display').textContent = `${timeLeft}s`;
+
+            const livesContainer = document.getElementById('lives-display');
+            livesContainer.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const heart = document.createElement('i');
+                if (i < lives) {
+                    heart.className = 'fa-solid fa-heart animate-heart text-red-400';
+                } else {
+                    heart.className = 'fa-regular fa-heart text-gray-300';
+                }
+                livesContainer.appendChild(heart);
+            }
+        }
+
+        function spawnItem() {
+            const data = ROUNDS_DATA[currentRoundIdx];
+            const isTarget = Math.random() < 0.6;
+            const itemList = isTarget ? data.targetItems : data.wrongItems;
+            const selected = itemList[Math.floor(Math.random() * itemList.length)];
+
+            const itemSize = canvas.width < 480 ? 44 : 54;
+            fallingItems.push({
+                x: Math.random() * (canvas.width - itemSize - 20) + 10,
+                y: -itemSize,
+                size: itemSize,
+                speed: Math.random() * 0.8 + 1.2, // Slower fall speed
+                isTarget: isTarget,
+                name: selected.name,
+                imgUrl: selected.img,
+                wobble: Math.random() * Math.PI * 2,
+                wobbleSpeed: Math.random() * 0.03 + 0.01
+            });
+        }
+
+        // --- MAIN GAME LOOP ---
+        function gameLoop() {
+            if (!isPlaying || isPaused) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawBgParticles();
+
+            if (keys.left && player.x > 10) {
+                player.x -= player.speed;
+            }
+            if (keys.right && player.x < canvas.width - player.width - 10) {
+                player.x += player.speed;
+            }
+
+            drawPlayer();
+
+            spawnTimer++;
+            if (spawnTimer >= spawnInterval) {
+                spawnItem();
+                spawnTimer = 0;
+            }
+
+            for (let i = fallingItems.length - 1; i >= 0; i--) {
+                const item = fallingItems[i];
+                item.y += item.speed;
+                item.wobble += item.wobbleSpeed;
+                const wobbleX = item.x + Math.sin(item.wobble) * 8;
+
+                drawItem(item, wobbleX);
+
+                if (
+                    item.y + item.size >= player.y &&
+                    item.y <= player.y + player.height &&
+                    wobbleX + item.size >= player.x &&
+                    wobbleX <= player.x + player.width
+                ) {
+                    if (item.isTarget) {
+                        score += 10;
+                        playSound('catch');
+                    } else {
+                        lives--;
+                        playSound('wrong');
+                        if (lives <= 0) {
+                            endRound(false);
+                            return;
+                        }
+                    }
+                    updateUI();
+                    fallingItems.splice(i, 1);
+                    continue;
+                }
+
+                if (item.y > canvas.height) {
+                    fallingItems.splice(i, 1);
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        // --- CANVAS RENDERING HELPERS ---
+        function drawBgParticles() {
+            bgParticles.forEach(p => {
+                p.y -= p.speedY;
+                if (p.y < 0) p.y = canvas.height;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+                ctx.fill();
+            });
+        }
+
+        function drawPlayer() {
+            const data = ROUNDS_DATA[currentRoundIdx];
+            const x = player.x;
+            const y = player.y;
+            const w = player.width;
+            const h = player.height;
+
+            // Basket Shadow
+            ctx.beginPath();
+            ctx.ellipse(x + w / 2, y + h - 2, w / 2 - 5, 6, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+            ctx.fill();
+
+            // Basket Handle
+            ctx.beginPath();
+            ctx.arc(x + w / 2, y + 10, w / 3, Math.PI, 0, false);
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = '#D4A373';
+            ctx.stroke();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#FAEDCD';
+            ctx.stroke();
+
+            // Basket Body
+            ctx.beginPath();
+            ctx.moveTo(x + 5, y + 15);
+            ctx.lineTo(x + w - 5, y + 15);
+            ctx.lineTo(x + w - 12, y + h - 5);
+            ctx.lineTo(x + 12, y + h - 5);
+            ctx.closePath();
+            ctx.fillStyle = '#E9EDC9';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#CCD5AE';
+            ctx.stroke();
+
+            // Woven Texture Lines
+            ctx.strokeStyle = 'rgba(212, 163, 115, 0.35)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x + 15, y + 25);
+            ctx.lineTo(x + w - 15, y + 25);
+            ctx.moveTo(x + 18, y + 38);
+            ctx.lineTo(x + w - 18, y + 38);
+            ctx.stroke();
+
+            // Career Badge Icon on Basket
+            const badgeRadius = 14;
+            const badgeX = x + w / 2;
+            const badgeY = y + h / 2 + 3;
+
+            ctx.beginPath();
+            ctx.arc(badgeX, badgeY, badgeRadius, 0, Math.PI * 2);
+            ctx.fillStyle = data.badgeColor || '#77DD77';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.stroke();
+
+            // Badge Icon (FontAwesome character fallback)
+            ctx.fillStyle = '#4A5568';
+            ctx.font = '900 12px "Font Awesome 6 Free"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const iconChar = getIconUnicode(data.badgeIcon);
+            ctx.fillText(iconChar, badgeX, badgeY);
+        }
+
+        function drawItem(item, x) {
+            const size = item.size;
+            const r = size / 2;
+
+            // Soft Drop Shadow
+            ctx.beginPath();
+            ctx.arc(x + r, item.y + r + 3, r - 2, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+            ctx.fill();
+
+            // Outer Badge Ring
+            ctx.beginPath();
+            ctx.arc(x + r, item.y + r, r, 0, Math.PI * 2);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = item.isTarget ? '#77DD77' : '#FFB7B2';
+            ctx.stroke();
+
+            // Clip & Draw Real Photographic Image
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x + r, item.y + r, r - 3, 0, Math.PI * 2);
+            ctx.clip();
+
+            const img = getImage(item.imgUrl);
+            if (img.complete && img.naturalWidth !== 0) {
+                ctx.drawImage(img, x + 3, item.y + 3, size - 6, size - 6);
+            } else {
+                ctx.fillStyle = item.isTarget ? '#E8F5E9' : '#FFEBEE';
+                ctx.fillRect(x, item.y, size, size);
+                ctx.fillStyle = '#4A5568';
+                ctx.font = '700 10px Quicksand';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(item.name.substring(0, 6), x + r, item.y + r);
+            }
+            ctx.restore();
+
+            // Specimen Label Below Image
+            ctx.fillStyle = '#4A5568';
+            ctx.font = '700 9px Quicksand';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(item.name, x + r, item.y + size + 2);
+        }
+
+        function getIconUnicode(iconClass) {
+            const map = {
+                'fa-seedling': '\uf4d8',
+                'fa-paw': '\uf1b0',
+                'fa-microscope': '\uf610',
+                'fa-fish': '\uf578',
+                'fa-dna': '\uf471'
+            };
+            return map[iconClass] || '\uf06c';
+        }
+    </script>
+</body>
+</html>
